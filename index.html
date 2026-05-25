@@ -194,6 +194,7 @@
             padding: 11px 18px; border: none; border-radius: 10px;
             font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
             white-space: nowrap; letter-spacing: 0.2px;
+            display: inline-flex; align-items: center; gap: 6px;
         }
         .pg-btn-primary { background: #066AFE; color: #fff; }
         .pg-btn-primary:hover { background: #0555d4; box-shadow: 0 2px 8px rgba(6,106,254,0.25); }
@@ -378,9 +379,9 @@
                     <button class="pg-btn pg-btn-secondary" onclick="resetControls()">↻ Reset</button>
                 </div>
                 <div class="pg-buttons">
-                    <button class="pg-btn pg-btn-primary" id="btn-export-gsap" onclick="exportGSAP()">Copy GSAP</button>
-                    <button class="pg-btn pg-btn-secondary" id="btn-export-json" onclick="exportJSON()">JSON</button>
-                    <button class="pg-btn pg-btn-secondary" id="btn-export-css" onclick="exportCSS()">CSS</button>
+                    <button class="pg-btn pg-btn-secondary" id="btn-export-gsap" onclick="exportGSAP()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> GSAP</button>
+                    <button class="pg-btn pg-btn-secondary" id="btn-export-json" onclick="exportJSON()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> JSON</button>
+                    <button class="pg-btn pg-btn-secondary" id="btn-export-css" onclick="exportCSS()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> CSS</button>
                 </div>
             </div>
         </div>
