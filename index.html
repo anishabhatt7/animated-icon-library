@@ -489,9 +489,13 @@
         const tl = gsap.timeline();
         tl.to(svg, { y: yoff, rotation: rot, filter: blur > 0 ? `blur(${blur}px)` : 'none', opacity: opDip, duration: 0.35 * d, ease: easeOut, transformOrigin: '50% 50%' });
 
-        if (face && params.color > 0) {
-            tl.to(face, { fill: '#003366', duration: 0.2 * d, ease: easeIn }, 0.08 * d)
-              .to(face, { fill: '#001642', duration: 0.6 * d, ease: easeOut }, 0.35 * d);
+        if (face) {
+            tl.to(face, { y: 2, scaleY: 0.92, duration: 0.15 * d, ease: easeIn, transformOrigin: '50% 50%' }, 0.12 * d)
+              .to(face, { y: 0, scaleY: 1, duration: 0.4 * d, ease: `elastic.out(${overshoot * 0.8}, ${elastic})` }, 0.35 * d);
+            if (params.color > 0) {
+                tl.to(face, { fill: '#003366', duration: 0.2 * d, ease: easeIn }, 0.08 * d)
+                  .to(face, { fill: '#001642', duration: 0.6 * d, ease: easeOut }, 0.35 * d);
+            }
         }
         if (inner && params.color > 0) {
             tl.to(inner, { fill: '#33ccff', duration: 0.25 * d, ease: easeIn }, 0.08 * d)
