@@ -541,11 +541,10 @@
         tl.to(svg, { rotation: rot, y: yoff, scale: sc, filter: blur > 0 ? `blur(${blur}px)` : 'none', opacity: opDip, duration: 0.3 * d, ease: easeOut, transformOrigin: '50% 50%' })
           .to(svg, { rotation: 0, y: 0, scale: 1, filter: 'none', opacity: 1, duration: 0.5 * d, ease: `elastic.out(${overshoot}, ${elastic})` }, 0.35 * d);
 
-        // Graph arrow shoots upward relative to the rest
+        // Graph arrow rises smoothly
         if (graph) {
-            tl.to(graph, { y: -8 * sc, scale: 1.05, duration: 0.25 * d, ease: easeOut, transformOrigin: '50% 60%' }, 0.05 * d)
-              .to(graph, { y: -12 * sc, scale: 1.08, duration: 0.2 * d, ease: easeOut }, 0.3 * d)
-              .to(graph, { y: 0, scale: 1, duration: 0.45 * d, ease: `elastic.out(${overshoot}, ${elastic})` }, 0.5 * d);
+            tl.to(graph, { y: -6, scale: 1.03, duration: 0.4 * d, ease: easeOut, transformOrigin: '50% 60%' }, 0.05 * d)
+              .to(graph, { y: 0, scale: 1, duration: 0.5 * d, ease: 'power2.out' }, 0.45 * d);
         }
 
         // Highlight flash
