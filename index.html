@@ -424,6 +424,7 @@
                     <button class="pg-btn pg-btn-secondary" id="btn-export-gsap" onclick="exportGSAP()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> GSAP</button>
                     <button class="pg-btn pg-btn-secondary" id="btn-export-json" onclick="exportJSON()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> JSON</button>
                     <button class="pg-btn pg-btn-secondary" id="btn-export-css" onclick="exportCSS()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> CSS</button>
+                    <button class="pg-btn pg-btn-secondary" id="btn-export-waapi" onclick="exportWAAPI()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Vanilla JS</button>
                 </div>
             </div>
         </div>
@@ -945,28 +946,129 @@ ${reg.svgMarkup}
     }
 
     // ============================================
-    // EXPORT — CSS
+    // EXPORT — CSS (multi-element @keyframes)
     // ============================================
+    function gsapEaseToCubicBezier(ease) {
+        const map = {
+            'power1.out': 'cubic-bezier(0.25, 1, 0.5, 1)',
+            'power1.in': 'cubic-bezier(0.5, 0, 0.75, 0)',
+            'power2.out': 'cubic-bezier(0.33, 1, 0.68, 1)',
+            'power2.in': 'cubic-bezier(0.32, 0, 0.67, 0)',
+            'power3.out': 'cubic-bezier(0.22, 1, 0.36, 1)',
+            'power3.in': 'cubic-bezier(0.55, 0, 1, 0)',
+            'sine.out': 'cubic-bezier(0.61, 1, 0.88, 1)',
+            'sine.in': 'cubic-bezier(0.12, 0, 0.39, 0)',
+            'expo.out': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        };
+        return map[ease] || 'ease-out';
+    }
+
     function exportCSS() {
         const reg = iconRegistry[activeIcon];
         const p = readParams();
-        const totalDur = (1.25 * p.duration).toFixed(2);
+        const dur = (1.25 * p.duration).toFixed(2);
         const sc = p.scale;
+        const easeOut = gsapEaseToCubicBezier(p.easing + '.out');
+        const name = activeIcon;
+        const label = name.charAt(0).toUpperCase() + name.slice(1);
 
-        const css = `<!-- ${activeIcon.charAt(0).toUpperCase() + activeIcon.slice(1)} Animated Icon — Pure CSS, no JS required -->
-<style>
-  .animated-icon { width: 100px; height: 100px; cursor: pointer; }
-  .animated-icon svg { width: 100%; height: 100%; transition: transform 0.3s ease; }
-  .animated-icon:hover svg {
-    animation: icon-pulse ${totalDur}s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
-  @keyframes icon-pulse {
+        let keyframes = '';
+        let hoverRules = '';
+
+        if (name === 'service') {
+            keyframes = `
+  @keyframes service-pulse {
     0% { transform: scale(1); }
     24% { transform: scale(${sc}); }
     44% { transform: scale(${(1 - (sc - 1) * 0.4).toFixed(3)}); }
-    64% { transform: scale(${(1 + (sc - 1) * 0.3).toFixed(3)}); }
+    68% { transform: scale(${(1 + (sc - 1) * 0.3).toFixed(3)}); }
     100% { transform: scale(1); }
   }
+  @keyframes service-highlight-fade {
+    0% { opacity: 1; }
+    12% { opacity: ${(1 - p.color * 0.7).toFixed(2)}; }
+    100% { opacity: 1; }
+  }
+  @keyframes service-shadow-shift {
+    0% { opacity: 1; }
+    25% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }`;
+            hoverRules = `
+  .animated-icon:hover svg { animation: service-pulse ${dur}s ${easeOut} forwards; transform-origin: 50% 50%; }
+  .animated-icon:hover .service-highlight { animation: service-highlight-fade ${dur}s ease forwards; }
+  .animated-icon:hover .service-shadow { animation: service-shadow-shift ${(p.duration * 0.8).toFixed(2)}s ease forwards; }`;
+        } else if (name === 'agentforce') {
+            keyframes = `
+  @keyframes af-float {
+    0% { transform: translateY(0); }
+    30% { transform: translateY(${p.yoffset}px); }
+    100% { transform: translateY(0); }
+  }
+  @keyframes af-highlight-glow {
+    0% { opacity: 1; transform: scale(1); }
+    8% { opacity: 0; }
+    25% { opacity: 1; transform: scale(1.3); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes af-body-glow {
+    0% { opacity: 1; }
+    15% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }`;
+            hoverRules = `
+  .animated-icon:hover svg { animation: af-float ${dur}s ${easeOut} forwards; }
+  .animated-icon:hover .af-highlight { animation: af-highlight-glow ${dur}s ease forwards; transform-origin: 65% 25%; }
+  .animated-icon:hover .af-body { animation: af-body-glow ${(p.duration * 0.85).toFixed(2)}s ease forwards; }`;
+        } else if (name === 'sales') {
+            keyframes = `
+  @keyframes sales-tilt {
+    0% { transform: rotate(0) translateY(0) scale(1); }
+    28% { transform: rotate(${p.rotation}deg) translateY(${p.yoffset}px) scale(${sc}); }
+    100% { transform: rotate(0) translateY(0) scale(1); }
+  }
+  @keyframes sales-graph-rise {
+    0% { transform: translateY(0) scale(1); }
+    35% { transform: translateY(${(-12 * sc).toFixed(1)}px) scale(1.08); }
+    100% { transform: translateY(0) scale(1); }
+  }
+  @keyframes sales-highlight-flash {
+    0% { opacity: 1; transform: scale(1); }
+    8% { opacity: 0; }
+    25% { opacity: 1; transform: scale(1.4); }
+    100% { opacity: 1; transform: scale(1); }
+  }`;
+            hoverRules = `
+  .animated-icon:hover .sales-bg { animation: sales-tilt ${dur}s ${easeOut} forwards; transform-origin: 50% 50%; }
+  .animated-icon:hover .sales-graph { animation: sales-graph-rise ${dur}s ${easeOut} forwards; transform-origin: 50% 60%; }
+  .animated-icon:hover .sales-highlight { animation: sales-highlight-flash ${dur}s ease forwards; transform-origin: 80% 15%; }`;
+        } else if (name === 'slack') {
+            const barDur = (0.6 * p.duration).toFixed(2);
+            keyframes = `
+  @keyframes slack-lift {
+    0% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(${p.yoffset}px) scale(${sc}); }
+    100% { transform: translateY(0) scale(1); }
+  }
+  @keyframes slack-spread-tl { 0% { transform: translate(0,0); } 35% { transform: translate(-3px,3px); } 100% { transform: translate(0,0); } }
+  @keyframes slack-spread-bl { 0% { transform: translate(0,0); } 35% { transform: translate(-3px,-3px); } 100% { transform: translate(0,0); } }
+  @keyframes slack-spread-tr { 0% { transform: translate(0,0); } 35% { transform: translate(3px,-3px); } 100% { transform: translate(0,0); } }
+  @keyframes slack-spread-br { 0% { transform: translate(0,0); } 35% { transform: translate(3px,3px); } 100% { transform: translate(0,0); } }`;
+            hoverRules = `
+  .animated-icon:hover svg { animation: slack-lift ${dur}s ${easeOut} forwards; transform-origin: 50% 50%; }
+  .animated-icon:hover .slack-pink-bar { animation: slack-spread-tl ${barDur}s ${easeOut} forwards; animation-delay: ${(0.08 * p.duration).toFixed(2)}s; }
+  .animated-icon:hover .slack-blue-bar { animation: slack-spread-bl ${barDur}s ${easeOut} forwards; animation-delay: ${(0.08 * p.duration + p.delay).toFixed(2)}s; }
+  .animated-icon:hover .slack-green-bar { animation: slack-spread-tr ${barDur}s ${easeOut} forwards; animation-delay: ${(0.08 * p.duration + p.delay * 2).toFixed(2)}s; }
+  .animated-icon:hover .slack-yellow-bar { animation: slack-spread-br ${barDur}s ${easeOut} forwards; animation-delay: ${(0.08 * p.duration + p.delay * 3).toFixed(2)}s; }`;
+        }
+
+        const css = `<!-- ${label} Animated Icon — Pure CSS, no JS required -->
+<!-- Note: CSS cannot animate SVG fill colors via @keyframes in all browsers. -->
+<!-- Opacity and transform are used as faithful proxies for color shift effects. -->
+<style>
+  .animated-icon { width: 100px; height: 100px; cursor: pointer; }
+  .animated-icon svg { width: 100%; height: 100%; }${hoverRules}
+${keyframes}
 </style>
 
 <div class="animated-icon">
@@ -974,6 +1076,151 @@ ${reg.svgMarkup}
 </div>`;
 
         copyAndFlash('btn-export-css', css);
+    }
+
+    // ============================================
+    // EXPORT — Vanilla JS (Web Animations API)
+    // ============================================
+    function exportWAAPI() {
+        const reg = iconRegistry[activeIcon];
+        const p = readParams();
+        const easeOut = gsapEaseToCubicBezier(p.easing + '.out');
+        const totalMs = Math.round(1250 * p.duration);
+        const name = activeIcon;
+        const label = name.charAt(0).toUpperCase() + name.slice(1);
+        const sc = p.scale;
+
+        let animCode = '';
+
+        if (name === 'service') {
+            animCode = `
+  const svg = icon.querySelector('svg');
+  const highlight = icon.querySelector('.service-highlight');
+  const shadow = icon.querySelector('.service-shadow');
+
+  svg.animate([
+    { transform: 'scale(1)', offset: 0 },
+    { transform: 'scale(${sc})', offset: 0.24 },
+    { transform: 'scale(${(1 - (sc - 1) * 0.4).toFixed(3)})', offset: 0.44 },
+    { transform: 'scale(${(1 + (sc - 1) * 0.3).toFixed(3)})', offset: 0.68 },
+    { transform: 'scale(1)', offset: 1 }
+  ], { duration: ${totalMs}, easing: '${easeOut}', fill: 'forwards' });
+
+  if (highlight) {
+    highlight.animate([
+      { opacity: 1, offset: 0 },
+      { opacity: ${(1 - p.color * 0.7).toFixed(2)}, offset: 0.12 },
+      { opacity: 1, offset: 1 }
+    ], { duration: ${totalMs}, easing: 'ease', fill: 'forwards' });
+  }
+
+  if (shadow) {
+    shadow.animate([
+      { opacity: 1, offset: 0 },
+      { opacity: 0.6, offset: 0.25 },
+      { opacity: 1, offset: 1 }
+    ], { duration: ${Math.round(totalMs * 0.8)}, easing: 'ease', fill: 'forwards' });
+  }`;
+        } else if (name === 'agentforce') {
+            animCode = `
+  const svg = icon.querySelector('svg');
+  const highlight = icon.querySelector('.af-highlight');
+  const body = icon.querySelector('.af-body');
+
+  svg.animate([
+    { transform: 'translateY(0)', offset: 0 },
+    { transform: 'translateY(${p.yoffset}px)', offset: 0.3 },
+    { transform: 'translateY(${Math.round(p.yoffset * -0.2)}px)', offset: 0.7 },
+    { transform: 'translateY(0)', offset: 1 }
+  ], { duration: ${totalMs}, easing: '${easeOut}', fill: 'forwards' });
+
+  if (highlight) {
+    highlight.animate([
+      { opacity: 1, transform: 'scale(1)', offset: 0 },
+      { opacity: 0, transform: 'scale(1)', offset: 0.08 },
+      { opacity: 1, transform: 'scale(1.3)', offset: 0.25 },
+      { opacity: 1, transform: 'scale(1)', offset: 1 }
+    ], { duration: ${totalMs}, easing: 'ease', fill: 'forwards' });
+  }
+
+  if (body) {
+    body.animate([
+      { opacity: 1, offset: 0 },
+      { opacity: 0.7, offset: 0.15 },
+      { opacity: 1, offset: 1 }
+    ], { duration: ${Math.round(totalMs * 0.85)}, easing: 'ease', fill: 'forwards' });
+  }`;
+        } else if (name === 'sales') {
+            animCode = `
+  const bg = icon.querySelector('.sales-bg');
+  const graph = icon.querySelector('.sales-graph');
+  const highlight = icon.querySelector('.sales-highlight');
+
+  if (bg) {
+    bg.animate([
+      { transform: 'rotate(0) translateY(0) scale(1)', offset: 0 },
+      { transform: 'rotate(${p.rotation}deg) translateY(${p.yoffset}px) scale(${sc})', offset: 0.28 },
+      { transform: 'rotate(0) translateY(0) scale(1)', offset: 1 }
+    ], { duration: ${totalMs}, easing: '${easeOut}', fill: 'forwards' });
+  }
+
+  if (graph) {
+    graph.animate([
+      { transform: 'translateY(0) scale(1)', offset: 0 },
+      { transform: 'translateY(${(-12 * sc).toFixed(1)}px) scale(1.08)', offset: 0.35 },
+      { transform: 'translateY(0) scale(1)', offset: 1 }
+    ], { duration: ${totalMs}, easing: '${easeOut}', fill: 'forwards' });
+  }
+
+  if (highlight) {
+    highlight.animate([
+      { opacity: 1, transform: 'scale(1)', offset: 0 },
+      { opacity: 0, transform: 'scale(1)', offset: 0.08 },
+      { opacity: 1, transform: 'scale(1.4)', offset: 0.25 },
+      { opacity: 1, transform: 'scale(1)', offset: 1 }
+    ], { duration: ${totalMs}, easing: 'ease', fill: 'forwards' });
+  }`;
+        } else if (name === 'slack') {
+            const barMs = Math.round(totalMs * 0.5);
+            animCode = `
+  const svg = icon.querySelector('svg');
+  svg.animate([
+    { transform: 'translateY(0) scale(1)', offset: 0 },
+    { transform: 'translateY(${p.yoffset}px) scale(${sc})', offset: 0.3 },
+    { transform: 'translateY(0) scale(1)', offset: 1 }
+  ], { duration: ${totalMs}, easing: '${easeOut}', fill: 'forwards' });
+
+  const bars = [
+    { sel: '.slack-pink-bar', x: -3, y: 3 },
+    { sel: '.slack-blue-bar', x: -3, y: -3 },
+    { sel: '.slack-green-bar', x: 3, y: -3 },
+    { sel: '.slack-yellow-bar', x: 3, y: 3 }
+  ];
+  bars.forEach((b, i) => {
+    const el = icon.querySelector(b.sel);
+    if (!el) return;
+    el.animate([
+      { transform: 'translate(0,0)', offset: 0 },
+      { transform: \`translate(\${b.x}px,\${b.y}px)\`, offset: 0.35 },
+      { transform: 'translate(0,0)', offset: 1 }
+    ], { duration: ${barMs}, easing: '${easeOut}', fill: 'forwards', delay: ${Math.round(80 * p.duration)} + i * ${Math.round(p.delay * 1000)} });
+  });`;
+        }
+
+        const fullCode = `<!-- ${label} Animated Icon — Vanilla JS (Web Animations API, no library needed) -->
+<!-- Works in all modern browsers. No dependencies. -->
+
+<div id="animated-icon" style="width: 100px; height: 100px; cursor: pointer;">
+${reg.svgMarkup}
+</div>
+
+<script>
+const icon = document.getElementById('animated-icon');
+icon.addEventListener('mouseenter', () => {${animCode}
+});
+<\/script>`;
+
+        copyAndFlash('btn-export-waapi', fullCode);
     }
 
     // ============================================
@@ -995,10 +1242,10 @@ ${reg.svgMarkup}
         navigator.clipboard.writeText(text).then(() => {
             const btn = document.getElementById(btnId);
             if (!btn) return;
-            const original = btn.textContent;
-            btn.textContent = 'Copied!';
+            const original = btn.innerHTML;
+            btn.innerHTML = '✓ Copied!';
             btn.classList.add('copied');
-            setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2000);
+            setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
         });
     }
 
